@@ -1,0 +1,58 @@
+#!/sbin/runscript
+# Custom runscript from https://github.com/jirutka/ansible-role-elasticsearch.
+
+name="Elasticsearch"
+description="A Distributed RESTful Search Engine."
+
+ES_INSTANCE="${SVCNAME#elasticsearch}"
+ES_INSTANCE="${ES_INSTANCE#.}"
+
+: ${es_user:=elasticsearch}
+: ${es_group:=$es_user}
+: ${es_conf_dir:=/etc/elasticsearch/$ES_INSTANCE}
+: ${es_data_dir:=/var/lib/elasticsearch/${ES_INSTANCE:-_default}/data}
+: ${es_data_dir:=/var/lib/elasticsearch/${ES_INSTANCE:-_default}/plugins}
+: ${es_work_dir:=/var/tmp/elasticsearch/${ES_INSTANCE:-_default}}
+: ${es_log_dir:=/var/log/elasticsearch/$ES_INSTANCE}
+: ${java_heap_size:=256m}
+
+pidfile="/run/elasticsearch/${SVCNAME}.pid"
+
+command="/usr/share/elasticsearch/bin/elasticsearch"
+command_args="
+	-Des.default.path.conf='$es_conf_dir'
+	-Des.default.path.data='$es_data_dir'
+	-Des.default.path.plugins='$es_plugin_dir'
+	-Des.default.path.work='$es_work_dir'
+	-Des.default.path.logs='$es_log_dir'"
+command_background="yes"
+
+start_stop_daemon_args="
+	--chdir '$es_work_dir'
+	--user ${es_user}:${es_group}
+	--env ES_INCLUDE=/usr/share/elasticsearch/bin/elasticsearch.in.sh
+	--env ES_JAVA_OPTS='$java_opts'
+	--env ES_HEAP_SIZE='$java_heap_size'
+	--env ES_DIRECT_SIZE='$java_direct_size'"
+retry="TERM/20/KILL/5"
+
+required_files="
+	/usr/share/elasticsearch/bin/elasticsearch.in.sh
+	${es_conf_dir}/elasticsearch.yml
+	${es_conf_dir}/logging.yml"
+
+depend() {
+	use net
+}
+
+start_pre() {
+	if [ -n "$es_max_fd" ]; then
+		ulimit -n $es_max_fd
+		einfo "Max open filedescriptors: $es_max_fd"
+	fi
+
+	checkpath -d -o "${es_user}:${es_group}" -m700 "$es_data_dir"
+	checkpath -d -o "${es_user}:${es_group}" -m700 "$es_work_dir"
+	checkpath -d -o "${es_user}:${es_group}" -m750 "$es_log_dir"
+	checkpath -d -o "${es_user}:${es_group}" -m750 "$(dirname "$pidfile")"
+}

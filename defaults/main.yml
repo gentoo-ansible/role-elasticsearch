@@ -1,0 +1,58 @@
+---
+# Name of this ElasticSearch instance.
+elasticsearch_name: elasticsearch
+
+# Cluster name identifies your cluster for auto-discovery. If you're running
+# multiple clusters on the same network, make sure you're using unique names.
+elasticsearch_cluster_name: elasticsearch
+
+# Node names are generated dynamically on startup, so you're relieved
+# from configuring them manually. You can tie this node to a specific name.
+elasticsearch_node_name:
+
+# Set the number of shards (splits) of an index (5 by default).
+elasticsearch_index_number_of_shards: 5
+
+# Set the number of replicas (additional copies) of an index (1 by default).
+elasticsearch_index_number_of_replicas: 1
+
+
+# Set both the bind address specifically (IPv4 or IPv6) and the address other
+# nodes will use to communicate with this node.
+elasticsearch_network_host: 0.0.0.0
+
+# Set a custom port to listen for HTTP traffic.
+elasticsearch_http_port: 9200
+
+# Set a custom port for the node to node communication (9300 by default).
+elasticsearch_transport_tcp_port: 9300
+
+# Enable multicast discovery (enabled by default).
+elasticsearch_discovery_multicast_enabled: false
+
+# Configure an initial list of master nodes in the cluster to perform discovery
+# when new nodes (master or data) are started.
+elasticsearch_discovery_unicast_hosts: []
+
+
+# Size of the heap in megabytes. This sets parameters -Xms and -Xmx.
+elasticsearch_java_heap_size: 128
+
+# List of additional options to pass to the JVM.
+elasticsearch_java_opts: []
+
+
+# Path to the directory where to store configuration files.
+elasticsearch_conf_dir: "/etc/{{ elasticsearch_name }}"
+
+# Path to the directory where to store index data allocated for this node.
+elasticsearch_data_dir: "/var/lib/{{ elasticsearch_name }}/data"
+
+# Path of the directory where plugins are installed.
+elasticsearch_plugins_dir: "/var/lib/{{ elasticsearch_name }}/plugins"
+
+# Path to the directory where to store temporary files.
+elasticsearch_work_dir: "/var/tmp/{{ elasticsearch_name }}"
+
+# Path of the directory where to store log files.
+elasticsearch_logs_dir: "/var/log/{{ elasticsearch_name }}"

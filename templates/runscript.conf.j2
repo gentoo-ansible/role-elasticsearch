@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+
+# User to run this ElasticSearch instance.
+#es_user="elasticsearch"
+
+# Group to run this ElasticSearch instance.
+#es_group="${es_user}"
+
+# Path of the config directory.
+es_conf_dir="{{ elasticsearch_conf_dir }}"
+
+# Path of the directory where to store index data.
+es_data_dir="{{ elasticsearch_data_dir }}"
+
+# Path of the directory where plugins are installed.
+es_plugin_dir="{{ elasticsearch_plugins_dir }}"
+
+# Path of the work directory (temporary files).
+es_work_dir="{{ elasticsearch_work_dir }}"
+
+# Path of the directory where to store log files.
+es_log_dir="{{ elasticsearch_logs_dir }}"
+
+# The maximum number of filedescriptors to be allowed.
+#es_max_fd=
+
+# Initial and maximum size of the heap.
+# Note: This sets parameters -Xms and -Xmx.
+java_heap_size="{{ elasticsearch_java_heap_size }}m"
+
+# Additional options to pass to the JVM.
+# Note: This sets ES variable ES_JAVA_OPTS.
+java_opts="{{ elasticsearch_java_opts | join(' ') }}"

@@ -1,0 +1,62 @@
+---
+- name: install app-misc/elasticsearch
+  portage: package=app-misc/elasticsearch
+  tags: [ install, packages ]
+
+- name: install custom runscript
+  copy: >
+    src=runscript
+    dest=/etc/init.d/elasticsearch
+    owner=root group=root mode=0755
+  tags: install
+
+- name: symlink runscript
+  file: >
+    state=link
+    src=/etc/init.d/elasticsearch
+    dest=/etc/init.d/{{ elasticsearch_name }}
+    force=yes
+  tags: install
+  when: elasticsearch_name != 'elasticsearch'
+
+- name: configure elasticsearch
+  template: >
+    src=elasticsearch.yml.j2
+    dest={{ elasticsearch_conf_dir }}/elasticsearch.yml
+    owner=root group=root mode=0644
+  notify: restart elasticsearch
+  tags: config
+
+- name: configure logging
+  template: >
+    src=logging.yml.j2
+    dest={{ elasticsearch_conf_dir }}/logging.yml
+    owner=root group=root mode=0644
+  notify: restart elasticsearch
+  tags: config
+
+- name: configure runscript
+  template: >
+    src=runscript.conf.j2
+    dest=/etc/conf.d/{{ elasticsearch_name }}
+    owner=root group=root mode=0644
+  notify: restart elasticsearch
+  tags: config
+
+- name: configure logrotate
+  template: >
+    src=logrotate.j2
+    dest=/etc/logrotate.d/{{ elasticsearch_name }}
+    owner=root group=root mode=0644
+  ignore_errors: yes
+  tags: config
+
+  # Trigger handlers now to avoid unnecessary restarts.
+- meta: flush_handlers
+
+- name: enable and start elasticsearch
+  service: >
+    name={{ elasticsearch_name }}
+    enabled=yes
+    state=started
+  tags: services
